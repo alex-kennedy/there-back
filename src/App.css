@@ -25,13 +25,22 @@
   width: 100%;
 }
 
-.hexagon {
+polygon.hexagon {
   stroke-opacity: 0;
   stroke-width: 0.25;
   stroke: black;
-  transition: 0.4s;
+  transition: 0.2s;
+  fill: #906fca;
 }
 
-.hexagon:hover {
+polygon.hexagon:hover {
   stroke-opacity: 1;
+}
+
+polygon.hexagon-inactive {
+  fill: #bbbbbb;
+}
+
+polygon.hexagon-selected {
+  fill: #2c3a68;
 }

@@ -1,15 +1,17 @@
 const COLOUR_SCALES = [
-  "#A8A8A8",
-  "#A6BD9D",
-  "#C0D291",
-  "#E8DA85",
-  "#FFB177",
-  "#FF8A87",
-  "#FF98C2",
-  "#FFABF3",
-  "#F8BFFF",
-  "#E7D4FF",
-  "#EAEAFF",
+  "#7AB8E7",
+  "#7BA7E6",
+  "#7C97E5",
+  "#7E88E4",
+  "#847FE2",
+  "#9480E1",
+  "#A381E0",
+  "#B282DF",
+  "#906FCA",
+  "#6F5CB3",
+  "#504B9B",
+  "#3B4182",
+  "#2C3A68",
 ];
 
 class MainColorScale {

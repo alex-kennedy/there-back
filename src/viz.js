@@ -1,13 +1,11 @@
 import * as d3 from "d3";
 
-import MainColourScale from "./colors";
-
 class VizData {
   constructor(locs, outbound) {
     this.locs = locs;
     this.outbound = outbound;
     this.inbound = this.reverseCommutes(outbound);
-    this.addNameToLocs();
+    this.addIDToLocs();
     this.addSizeToLocs();
   }
 
@@ -22,9 +20,9 @@ class VizData {
     return inbound;
   }
 
-  addNameToLocs() {
-    for (let [name, d] of Object.entries(this.locs)) {
-      d["name"] = name;
+  addIDToLocs() {
+    for (let [id, d] of Object.entries(this.locs)) {
+      d["id"] = id;
     }
   }
 
@@ -33,16 +31,16 @@ class VizData {
     for (const origin in this.locs) {
       let total = 1; // Makes sure we can take the log
       if (origin in this.outbound) {
-        for (const name in this.outbound[origin]) {
-          if (!isNaN(this.outbound[origin][name].work)) {
-            total += this.outbound[origin][name].work;
+        for (const id in this.outbound[origin]) {
+          if (!isNaN(this.outbound[origin][id].work)) {
+            total += this.outbound[origin][id].work;
           }
-          if (!isNaN(this.outbound[origin][name].edu)) {
-            total += this.outbound[origin][name].edu;
+          if (!isNaN(this.outbound[origin][id].edu)) {
+            total += this.outbound[origin][id].edu;
           }
         }
       }
-      this.locs[origin]["size"] = Math.log(total);
+      this.locs[origin]["size"] = total;
     }
   }
 }
@@ -69,16 +67,7 @@ class Hexagon {
   }
 }
 
-function createViz(data) {
-  // Creates a color scale for hexagon size
-  let maxSize = 0;
-  for (const name in data.locs) {
-    if (data.locs[name].size > maxSize) {
-      maxSize = data.locs[name].size;
-    }
-  }
-  const colourScale = new MainColourScale(0, maxSize);
-
+function createViz(data, app) {
   // The main containing components
   const div = d3.select(".App-container");
   const svg = div.append("svg").classed("App-svg-content", true);
@@ -86,19 +75,16 @@ function createViz(data) {
 
   // Creates the hexagons (main visualisation)
   const hexagons = container
-    .selectAll("#hexagon")
+    .selectAll(".hexagon")
     .data(Object.values(data.locs))
     .enter()
     .append("polygon")
     .attr("points", (d) => {
       const hex = new Hexagon(d.hex_x, d.hex_y);
       return hex
-        .points(0.8)
+        .points(0.85)
         .map((point) => [point.x, point.y].join(","))
         .join(" ");
-    })
-    .attr("fill", (d) => {
-      return colourScale.get(d.size);
     })
     .classed("hexagon", true);
 
@@ -125,6 +111,86 @@ function createViz(data) {
     zoomBehaviour.translateTo(svg, bbox.width / 2, bbox.height / 2);
   };
   resetPosition();
+
+  // Events
+  hexagons.on("mouseover", (d) => {
+    app.setState({ hoverNode: d.id });
+  });
+
+  hexagons.on("mouseout", (d) => {
+    app.setState({ hoverNode: null });
+  });
+
+  const deselectAll = () => {
+    hexagons
+      .classed("hexagon-inactive", false)
+      .classed("hexagon-selected", false)
+      .attr("style", null);
+  };
+  div.on("click", (d) => {
+    app.setState({ selectedNode: null, outbound: true });
+    deselectAll();
+  });
+
+  hexagons.on("click", (clickedData) => {
+    // Stops the click reaching the parent div
+    d3.event.stopPropagation();
+
+    deselectAll();
+
+    // The value that outbound will be set to
+    let newOutbound = true;
+
+    // Reverse the commutes if it's already selected, otherwise select anew
+    if (clickedData.id === app.state.selectedNode) {
+      newOutbound = !app.state.outbound;
+      app.setState((state, props) => ({
+        outbound: !state.outbound,
+      }));
+    } else {
+      app.setState({
+        selectedNode: clickedData.id,
+        outbound: true,
+      });
+    }
+
+    const directedCommutes = newOutbound ? data.outbound : data.inbound;
+    const commutesForClickedNode = directedCommutes[clickedData.id] || {};
+
+    // Calculates maximum number of commuters for colour mapping
+    let maxCommuters = 0;
+    for (const pairNodeID in commutesForClickedNode) {
+      let count = 0;
+      if ("work" in commutesForClickedNode[pairNodeID]) {
+        count += commutesForClickedNode[pairNodeID].work;
+      }
+      if ("edu" in commutesForClickedNode[pairNodeID]) {
+        count += commutesForClickedNode[pairNodeID].edu;
+      }
+      maxCommuters = Math.max(maxCommuters, count);
+    }
+
+    hexagons
+      .classed("hexagon-inactive", (pairNode) => {
+        return !(pairNode.id in commutesForClickedNode);
+      })
+      .classed("hexagon-selected", (node) => node.id === clickedData.id)
+      .attr("style", (pairNode) => {
+        if (!(pairNode.id in commutesForClickedNode)) {
+          return null;
+        }
+
+        // Colour as a proportion of the maximum number of commuters
+        let count = 0;
+        if ("work" in commutesForClickedNode[pairNode.id]) {
+          count += commutesForClickedNode[pairNode.id].work;
+        }
+        if ("edu" in commutesForClickedNode[pairNode.id]) {
+          count += commutesForClickedNode[pairNode.id].edu;
+        }
+        return `fill:${d3.interpolateMagma(1 - count / maxCommuters)};`;
+      });
+  });
 }
 
 export { createViz, VizData };
