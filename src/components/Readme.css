@@ -1,0 +1,45 @@
+.Readme-closed {
+  position: absolute;
+  opacity: 0.5;
+  padding: 16px;
+  top: 0px;
+  left: 0px;
+}
+
+.Readme-open-button {
+  color: white !important;
+  display: block !important;
+  position: absolute;
+}
+
+/* HACK: This is all kinda hacky because oh how ignorant of the details I am. */
+.Readme-container {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px);
+  opacity: 0;
+  visibility: hidden;
+  transition: visibility 0.2s, opacity 0.2s linear;
+  padding: 16px;
+  padding-bottom: 20%;
+  text-align: center;
+  box-sizing: border-box;
+  z-index: 3;
+}
+
+.Readme-container-opened {
+  visibility: visible;
+  opacity: 1;
+  overflow: scroll;
+}
+
+.Readme-content {
+  width: 100%;
+  max-width: 1000px;
+  display: inline-block;
+  text-align: left;
+}

@@ -4,9 +4,10 @@ class VizData {
   constructor(locs, outbound) {
     this.locs = locs;
     this.outbound = outbound;
-    this.inbound = this.reverseCommutes(outbound);
     this.addIDToLocs();
     this.addSizeToLocs();
+    this.inbound = this.reverseCommutes(outbound);
+    this.addIDToCommutes();
   }
 
   reverseCommutes(outbound) {
@@ -14,7 +15,7 @@ class VizData {
     for (let [from, toLocations] of Object.entries(outbound)) {
       for (let [to, data] of Object.entries(toLocations)) {
         inbound[to] = inbound[to] || {};
-        inbound[to][from] = data;
+        inbound[to][from] = Object.assign({}, data);;
       }
     }
     return inbound;
@@ -23,6 +24,16 @@ class VizData {
   addIDToLocs() {
     for (let [id, d] of Object.entries(this.locs)) {
       d["id"] = id;
+    }
+  }
+
+  addIDToCommutes() {
+    for (const commutes of [this.inbound, this.outbound]) {
+      for (const a of Object.keys(commutes)) {
+        for (const b of Object.keys(commutes[a])) {
+          commutes[a][b].id = b;
+        }
+      }
     }
   }
 
@@ -193,4 +204,4 @@ function createViz(data, app) {
   });
 }
 
-export { createViz, VizData };
+export { createViz, VizData, Hexagon };

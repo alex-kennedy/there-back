@@ -28,9 +28,9 @@
 polygon.hexagon {
   stroke-opacity: 0;
   stroke-width: 0.25;
-  stroke: black;
+  stroke: white;
   transition: 0.2s;
-  fill: #906fca;
+  fill: #cccccc;
 }
 
 polygon.hexagon:hover {
@@ -38,9 +38,9 @@ polygon.hexagon:hover {
 }
 
 polygon.hexagon-inactive {
-  fill: #bbbbbb;
+  fill: #cccccc;
 }
 
 polygon.hexagon-selected {
-  fill: #2c3a68;
+  stroke-opacity: 1;
 }
