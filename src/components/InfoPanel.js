@@ -113,7 +113,7 @@ export default function InfoPanel(props) {
         <CardMedia className={classes.colorScaleContainer}>
           <img
             className={classes.colorScaleImage}
-            src={process.env.PUBLIC_URL + "magma.png"}
+            src={process.env.PUBLIC_URL + "/magma.png"}
             alt="Magma colour scale"
           />
           <div
