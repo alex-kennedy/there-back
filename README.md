@@ -1,5 +1,7 @@
 # How New Zealanders Commute
 
+[alexk.nz/there-back](https://alexk.nz/there-back)
+
 This project is a visualisation of the commuter data from the 2018 New Zealand
 Census.
 
